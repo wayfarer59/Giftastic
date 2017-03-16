@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Giftastic</title>
+	
+<style type="text/css">
+    button,
+    div,
+    form,
+    input {
+      margin: 10px;
+    }
+
+.sports{
+	float: left;
+}
+
+button, #add-sport {
+	padding: 10px;
+	background: #68d3e0;
+	color:white;
+	font-size: 15px;
+
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div id="button-view"></div>
+
+    <form id="sports-form">
+      <label for="sports-input">Add a Sport</label>
+      <input type="text" id="sports-input"><br>
+      <input id="add-sport" type="submit" value="Add a Sport">
+    </form>
+
+    <div id="sports-view"></div>
+
+    </div>
+
+    
+<script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+
+<script type="text/javascript">
+
+
+ var topics =[];
+
+
+function displaySports(){
+
+
+	var sport = $(this).attr("data-name");
+	 			
+	  
+
+
+	 var queryURL = "http://api.giphy.com/v1/gifs/search?q=" +
+	        sport + "&api_key=dc6zaTOxFJmzC&limit=10";
+
+
+ $.ajax({
+          url: queryURL,
+          method: "GET"
+        })
+
+		.done(function(response){
+          console.log(queryURL);
+
+        console.log(response);
+
+        var results = response.data;
+
+		for (var i = 0; i < results.length; i++) {
+
+		var sportsDiv = $("<div class='sports'>");
+
+		var p = $("<p>").text("Rating: " + results[i].rating);
+
+		var sportsImage = $("<img class='gif'>");
+
+	   sportsImage.attr({"src":results[i].images.fixed_height_still.url,
+	   		"data-still":results[i].images.fixed_height_still.url,
+	   		"data-animate":results[i].images.fixed_height.url,
+	   		"data-state":"still"
+
+       });
+          	
+      		sportsDiv.append(p);
+            sportsDiv.append(sportsImage);
+        	$("#sports-view").prepend(sportsDiv);
+		
+		}
+	
+	
+	});
+
+
+
+
+}; // this closes displaySports fct
+
+function renderButtons(){
+	$("#button-view").empty();
+
+for (var i =0; i <topics.length; i++){
+
+	var a = $("<button>");
+
+	a.addClass("sport");
+
+	a.attr("data-name", topics[i]);
+
+	a.text(topics[i]);
+
+	$("#button-view").append(a);
+	}
+}
+$("#add-sport").on("click", function(event){
+
+	event.preventDefault();
+
+	var ssport = $("#sports-input").val().trim();
+
+	topics.push(ssport);
+
+	renderButtons();
+
+
+});
+
+// click function for gif to animate
+
+
+
+
+$(document).on("click", ".sport", displaySports);
+ 
+$(document).on("click", ".gif", function(e){
+
+	if ($(this).attr('data-state') === 'still'){
+		$(this).attr('src', $(this).attr('data-animate'));
+		$(this).attr('data-state', 'animated');		
+	} else if($(this).attr('data-state')==='animated'){
+		$(this).attr('src', $(this).attr("data-still"));
+		$(this).attr('data-state', 'still');
+
+	}
+})
+
+
+renderButtons();
+
+
+</script>
+</div>
+</body>
+</html>
